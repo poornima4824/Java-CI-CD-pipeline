@@ -1,19 +1,10 @@
-//Test1
-//Test2
-def COMMIT
-def BRANCH_NAME
-def GIT_BRANCH
 pipeline
 {
  agent any
- environment
- {
-     AWS_ACCOUNT_ID="470022230688"             
-     AWS_DEFAULT_REGION="ap-south-1" 
-     IMAGE_REPO_NAME="jenkins-java"
-     REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+ environment {
+     jmeter="/opt/jmeter/bin"
      DOCKERHUB_CREDENTIALS=credentials('docker')
- }
+   }
  tools
  {
       maven 'maven3'
@@ -32,7 +23,7 @@ pipeline
          {
              script
              {
-                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/vasantha31/jenkins-java-ci-cd-pipeline.git']]])
+                 checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/poornima4824/Java-CI-CD-pipeline.git']]])
                  COMMIT = sh (script: "git rev-parse --short=10 HEAD", returnStdout: true).trim()  
                  COMMIT_TAG = sh (script: "git tag --contains | head -1", returnStdout: true).trim() 
             }
@@ -40,35 +31,50 @@ pipeline
          }
      }
      stage('Build')
-     {   
-        //  when {
-        //     buildingTag()
-        //  }
-         steps
+     { 
+        steps
          {
              sh "mvn clean package"
          }
      }
-    //  stage('Execute Sonarqube Report')
-    //  {
-    //      steps
-    //      {
-    //         withSonarQubeEnv('sonar') 
-    //          {
-    //             sh "mvn sonar:sonar"
-    //          }  
-    //      }
-    //  }
-    //  stage('Quality Gate Check')
-    //  {
-    //      steps
-    //      {
-    //          timeout(time: 1, unit: 'HOURS') 
-    //          {
-    //             waitForQualityGate abortPipeline: true
-    //         }
-    //      }
-    //  }
+     stage('Execute Sonarqube Report')
+     {
+         steps
+         {
+            withSonarQubeEnv('sonar') 
+             {
+                sh "mvn sonar:sonar"
+             }  
+         }
+     }
+     stage('Quality Gate Check')
+     {
+         steps
+         {
+             timeout(time: 1, unit: 'HOURS') 
+             {
+                waitForQualityGate abortPipeline: true
+            }
+         }
+     }
+      stage('Jmeter test') {
+         steps {
+               sh "/opt/jmeter/bin/jmeter.sh -Jjmeter.save.saveservice.output_format=xml -n -t src/main/jmeter/Testing.jmx -l MyRun1.jtl"
+               step([$class: 'ArtifactArchiver', artifacts: '**/*.jtl'])
+              //sh "/opt/jmeter/bin/jmeter -Jjmeter.save.saveservice.output_format=xml -n -t src/main/jmeter/Testing.jmx -l src/main/jmeter/JMeter.jtl -e -o src/main/jmeter/report/output"
+              //sh "/opt/jmeter/bin/jmeter.sh -Jjmeter.save.saveservice.output_format=html -Jjmeter.save.saveservice.output_format=xml -n -t src/main/jmeter/Testing.jmx -l src/main/jmeter/MyRun1.jtl"
+             step([$class: 'ArtifactArchiver', artifacts: '**/*.jtl,**/*.html'])
+             //sh "mvn clean verify"
+                   
+         }
+     }
+    stage('Publish Report') {
+            steps {
+            
+                perfReport filterRegex: '', sourceDataFiles: '**/*.jtl,**/*.html'
+            
+            }
+        }
      
     //  stage('Nexus Upload')
     //  {
@@ -103,9 +109,9 @@ pipeline
 
               steps {
 
-                  sh 'docker build -t sample:latest .'
+                  sh 'docker build -t java-app:latest .'
 
-                  sh 'docker tag  sample vasanthad/sample:latest'
+                  sh 'docker tag  java-app nagapoornima/java-app:latest'
 
                     }
 
@@ -125,7 +131,7 @@ pipeline
 
                  steps {
 
-                  sh 'docker push  vasanthad/sample:latest'
+                  sh 'docker push  nagapoornima/java-app:latest'
 
 
 
@@ -140,70 +146,39 @@ pipeline
          }
        }
 
-    stage('Docker Run') {
+    stage('Deploy') {
      steps{
          script {
                 sh "docker run -d -p 8082:8080 --rm --name myjavaContainer sample:latest"
             }
       }
     } 
-    //  stage('Update image in K8s manifest file')
-    //  {
-    //      steps
-    //      {
-             
-    //              sh """#!/bin/bash
-    //              sed -i 's/VERSION/$COMMIT/g' deployment.yaml
-    //              """
-    //          }
-    //      }
-     
-    //  stage('Deploy to K8s cluster')
-    //  {
-    //      steps
-    //      {
-             
-    //          sh '/usr/local/bin/kubectl apply -f deployment.yaml --record=true'
-    //          sh """#!/bin/bash
-    //          sed -i 's/$COMMIT/VERSION/g' deployment.yaml
-    //          """
-
-    //      }
-    //  }
+    
  }
-
-//  post
-//  {
-//      always
-//      {
-//          cleanWs()
-//      }
-//      success
-//      {
-//         slackSend channel: 'build-notifications',color: 'good', message: "started  JOB : ${env.JOB_NAME}  with BUILD NUMBER : ${env.BUILD_NUMBER}  BUILD_STATUS: - ${currentBuild.currentResult} To view the dashboard (<${env.BUILD_URL}|Open>)"
-//         emailext attachLog: true, body: '''BUILD IS SUCCESSFULL - $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+ post
+ {
+     success
+     {
+        slackSend channel: 'build-notifications',color: 'good', message: "started  JOB : ${env.JOB_NAME}  with BUILD NUMBER : ${env.BUILD_NUMBER}  BUILD_STATUS: - ${currentBuild.currentResult} To view the dashboard (<${env.BUILD_URL}|Open>)"
+        emailext attachLog: true, body: '''BUILD IS SUCCESSFULL - $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS: Check console output at $BUILD_URL to view the results. /n
  
-//         Check console output at $BUILD_URL to view the results.
+         Regards,
+         Team
  
-//         Regards,
+     ''', compressLog: true, replyTo: 'naga.poornima22@gmail.com', 
+        subject: '$PROJECT_NAME - $BUILD_NUMBER - $BUILD_STATUS', to: 'naga.poornima22@gmail.com'
+     }
+     failure
+     {
+         slackSend channel: 'build-notifications',color: 'danger', message: "started  JOB : ${env.JOB_NAME}  with BUILD NUMBER : ${env.BUILD_NUMBER}  BUILD_STATUS: - ${currentBuild.currentResult} To view the dashboard (<${env.BUILD_URL}|Open>)"
+         emailext attachLog: true, body: '''BUILD IS FAILED - $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
  
-//         Nithin John George
-//         ''', compressLog: true, replyTo: 'njdevops321@gmail.com', 
-//         subject: '$PROJECT_NAME - $BUILD_NUMBER - $BUILD_STATUS', to: 'njdevops321@gmail.com'
-//      }
-//      failure
-//      {
-//          slackSend channel: 'build-notifications',color: 'danger', message: "started  JOB : ${env.JOB_NAME}  with BUILD NUMBER : ${env.BUILD_NUMBER}  BUILD_STATUS: - ${currentBuild.currentResult} To view the dashboard (<${env.BUILD_URL}|Open>)"
-//          emailext attachLog: true, body: '''BUILD IS FAILED - $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
- 
-//         Check console output at $BUILD_URL to view the results.
- 
-//         Regards,
- 
-//         Nithin John George
-//         ''', compressLog: true, replyTo: 'njdevops321@gmail.com', 
-//         subject: '$PROJECT_NAME - $BUILD_NUMBER - $BUILD_STATUS', to: 'njdevops321@gmail.com'
-//      }
-//  }
+         Check console output at $BUILD_URL to view the results. 
+        Regards,
+        Team
+         ''', compressLog: true, replyTo: 'naga.poornima22@gmail.com', 
+         subject: '$PROJECT_NAME - $BUILD_NUMBER - $BUILD_STATUS', to: 'naga.poornima22@gmail.com'
+      }
+  }
 
 }
