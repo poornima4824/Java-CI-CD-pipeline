@@ -4,6 +4,11 @@ pipeline
  environment {
      jmeter="/opt/jmeter/bin"
      DOCKERHUB_CREDENTIALS=credentials('doc-pri')
+     AWS_CREDENTIALS= credentials('aws-credentials')
+     AWS_ACCOUNT_ID="435255528170"             
+     AWS_DEFAULT_REGION="us-east-1" 
+     IMAGE_REPO_NAME="java-app"
+     REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
    }
  tools
  {
@@ -103,41 +108,67 @@ pipeline
          }
      }
     
-     stage('Docker Build and Tag') {
+    //  stage('Docker Build and Tag') {
 
-              steps {
+    //           steps {
 
-                //   sh 'docker build -t java-app:latest .'
-                //   sh 'docker tag  java-app nagapoornima/java-app:latest'
-                sh 'docker build -t java-web-app:latest .'
-                sh 'docker tag  java-web-app boppanaaadhya/java-web-app:latest'
+    //             //   sh 'docker build -t java-app:latest .'
+    //             //   sh 'docker tag  java-app nagapoornima/java-app:latest'
+    //             sh 'docker build -t java-web-app:latest .'
+    //             sh 'docker tag  java-web-app boppanaaadhya/java-web-app:latest'
 
-                    }
+    //                 }
 
+    //           }
+
+        //  stage('Login') {
+        //       steps {
+        //     sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        //         }
+        //       }
+        //   stage('Push') {
+        //          steps {
+        //         //   sh 'docker push  nagapoornima/java-app:latest'
+        //          sh 'docker push boppanaaadhya/java-web-app'
+        //          }
+        //    }
+
+         stage('Login to AWS ECR')
+      {
+          steps
+          {
+              script
+              {
+                 sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 435255528170.dkr.ecr.us-east-1.amazonaws.com"
+                 //sh "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+                 // sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 440883647063.dkr.ecr.us-east-1.amazonaws.com"
               }
-
-         stage('Login') {
-
-              steps {
-
-            sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-
-                }
-
-              }
-
-          stage('Push') {
-
-                 steps {
-
-                //   sh 'docker push  nagapoornima/java-app:latest'
-                 sh 'docker push boppanaaadhya/java-web-app'
-
-
-
-                 }
-
+          }
+      }
+      stage('Building Docker Image')
+       {
+           steps
+           {
+               script
+               {
+                 sh "docker build -t java-app ."
+                //sh "docker build . -t ${REPOSITORY_URI}:LoginWebApp"
+               }
            }
+       }
+       stage('Pushing Docker image into ECR')
+       {
+           steps
+           {
+             script
+              {
+                sh "docker tag java-app:latest 435255528170.dkr.ecr.us-east-1.amazonaws.com/java-app:latest"
+                sh "docker push 435255528170.dkr.ecr.us-east-1.amazonaws.com/java-app:latest"
+                //  sh "docker push ${REPOSITORY_URI}:sample-login-app"
+              }
+           }
+
+     }
      // Stopping Docker containers for cleaner Docker run
      stage('stop previous containers') {
          steps {
@@ -149,7 +180,7 @@ pipeline
     stage('Deploy') {
      steps{
          script {
-                sh "docker run -d -p 8083:8080 --rm --name myjavaapp java-web-app:latest"
+                sh "docker run -d -p 8084:8080 --rm --name myjavaapp java-app:latest"
             }
       }
     } 
