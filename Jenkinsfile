@@ -4,7 +4,7 @@ pipeline
  environment {
      jmeter="/opt/jmeter/bin"
      DOCKERHUB_CREDENTIALS=credentials('doc-pri')
-     AWS_CREDENTIALS= credentials('aws-credentials')
+     AWS_CREDENTIALS= credentials('AWS-cred')
      AWS_ACCOUNT_ID="435255528170"             
      AWS_DEFAULT_REGION="us-east-1" 
      IMAGE_REPO_NAME="java-app"
