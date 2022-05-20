@@ -3,7 +3,7 @@ pipeline
  agent any
  environment {
      jmeter="/opt/jmeter/bin"
-     DOCKERHUB_CREDENTIALS=credentials('docker')
+     DOCKERHUB_CREDENTIALS=credentials('doc-pri')
    }
  tools
  {
@@ -107,9 +107,10 @@ pipeline
 
               steps {
 
-                  sh 'docker build -t java-app:latest .'
-
-                  sh 'docker tag  java-app nagapoornima/java-app:latest'
+                //   sh 'docker build -t java-app:latest .'
+                //   sh 'docker tag  java-app nagapoornima/java-app:latest'
+                sh 'docker build -t java-web-app:latest .'
+                sh 'docker tag  java-web-app boppanaaadhya/java-web-app:latest'
 
                     }
 
@@ -129,7 +130,8 @@ pipeline
 
                  steps {
 
-                  sh 'docker push  nagapoornima/java-app:latest'
+                //   sh 'docker push  nagapoornima/java-app:latest'
+                 sh 'docker push boppanaaadhya/java-web-app'
 
 
 
@@ -139,15 +141,15 @@ pipeline
      // Stopping Docker containers for cleaner Docker run
      stage('stop previous containers') {
          steps {
-            sh 'docker ps -f name=myjavaContainer -q | xargs --no-run-if-empty docker container stop'
-            sh 'docker container ls -a -fname=myjavaContainer -q | xargs -r docker container rm'
+            sh 'docker ps -f name=myjavaapp -q | xargs --no-run-if-empty docker container stop'
+            sh 'docker container ls -a -fname=myjavaapp -q | xargs -r docker container rm'
          }
        }
 
     stage('Deploy') {
      steps{
          script {
-                sh "docker run -d -p 8082:8080 --rm --name myjavaContainer java-app:latest"
+                sh "docker run -d -p 8082:8080 --rm --name myjavaapp java-web-app:latest"
             }
       }
     } 
