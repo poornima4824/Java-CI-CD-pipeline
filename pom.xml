@@ -110,14 +110,14 @@
 	</distributionManagement>
 	-->
 	
-	<!-- <repositories>
+	<repositories>
 		<repository>
 		     <id>nexus</id>
 		     <name>proxy-repo-mss</name>
-	              <url>http://3.110.88.104:8081/repository/maven-central/</url>
+	              <url>http://52.91.194.232:8081/repository/maven-central/</url>
 		</repository>
 		
-	</repositories> -->
+	</repositories> 
 
 	
 	<build>
