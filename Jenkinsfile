@@ -149,7 +149,7 @@ pipeline
     stage('Deploy') {
      steps{
          script {
-                sh "docker run -d -p 8082:8080 --rm --name myjavaapp java-web-app:latest"
+                sh "docker run -d -p 8083:8080 --rm --name myjavaapp java-web-app:latest"
             }
       }
     } 
