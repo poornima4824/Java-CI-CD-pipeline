@@ -76,11 +76,9 @@ pipeline
             }
         }
      
-     stage('Nexus Upload')
-     {
-         steps
-         {
-            script
+     stage("Publish to Nexus Repository Manager") {
+            steps {
+                 script
             {
                  def readPom = readMavenPom file: 'pom.xml'
                  def nexusrepo = readPom.version.endsWith("SNAPSHOT") ? "maven-snapshots" : "maven-releases"
@@ -93,9 +91,9 @@ pipeline
                          type: 'war'
                      ]
                 ], 
-                         credentialsId: 'Nexus-Cred', 
+                         credentialsId: 'nexus', 
                          groupId: "${readPom.groupId}", 
-                         nexusUrl: '52.91.194.232:8081', 
+                         nexusUrl: '3.83.137.80:8081', 
                          nexusVersion: 'nexus3', 
                          protocol: 'http', 
                          repository: "${nexusrepo}", 
