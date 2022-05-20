@@ -94,32 +94,6 @@
 		</dependency>
 		
 	</dependencies>
-	<!--
-	<distributionManagement>
-		<repository>
-			<id>nexus</id>
-			<name>Release</name>
-			<url>http://52.90.58.16:8081/repository/wallmart-release/</url>
-		</repository>
-		<snapshotRepository>
-			<id>nexus</id>
-			<name>Snapshot</name>
-			<url>http://52.90.58.16:8081/repository/</url>
-		</snapshotRepository>
-         		
-	</distributionManagement>
-	-->
-	
-	<repositories>
-		<repository>
-		     <id>nexus</id>
-		     <name>proxy-repo-mss</name>
-	              <url>http://52.91.194.232:8081/repository/maven-central/</url>
-		</repository>
-		
-	</repositories> 
-
-	
 	<build>
 		
 		<plugins>
