@@ -42,26 +42,26 @@ pipeline
              sh "mvn clean package"
          }
      }
-     stage('Execute Sonarqube Report')
-     {
-         steps
-         {
-            withSonarQubeEnv('sonar') 
-             {
-                sh "mvn sonar:sonar"
-             }  
-         }
-     }
-     stage('Quality Gate Check')
-     {
-         steps
-         {
-             timeout(time: 1, unit: 'HOURS') 
-             {
-                waitForQualityGate abortPipeline: true
-            }
-         }
-     }
+    //  stage('Execute Sonarqube Report')
+    //  {
+    //      steps
+    //      {
+    //         withSonarQubeEnv('sonar') 
+    //          {
+    //             sh "mvn sonar:sonar"
+    //          }  
+    //      }
+    //  }
+    //  stage('Quality Gate Check')
+    //  {
+    //      steps
+    //      {
+    //          timeout(time: 1, unit: 'HOURS') 
+    //          {
+    //             waitForQualityGate abortPipeline: true
+    //         }
+    //      }
+    //  }
       stage('Jmeter test') {
          steps {
                sh "/opt/jmeter/bin/jmeter.sh -Jjmeter.save.saveservice.output_format=xml -n -t src/main/jmeter/Testing.jmx -l MyRun1.jtl"
@@ -81,32 +81,32 @@ pipeline
             }
         }
      
-     stage("Publish to Nexus Repository Manager") {
-            steps {
-                 script
-            {
-                 def readPom = readMavenPom file: 'pom.xml'
-                 def nexusrepo = readPom.version.endsWith("SNAPSHOT") ? "maven-snapshots" : "maven-releases"
-                 nexusArtifactUploader artifacts: 
-                 [
-                     [
-                         artifactId: "${readPom.artifactId}",
-                         classifier: '', 
-                         file: "target/${readPom.artifactId}-${readPom.version}.war", 
-                         type: 'war'
-                     ]
-                ], 
-                         credentialsId: 'nexus', 
-                         groupId: "${readPom.groupId}", 
-                         nexusUrl: '52.91.194.232:8081', 
-                         nexusVersion: 'nexus3', 
-                         protocol: 'http', 
-                         repository: "${nexusrepo}", 
-                         version: "${readPom.version}"
+    //  stage("Publish to Nexus Repository Manager") {
+    //         steps {
+    //              script
+    //         {
+    //              def readPom = readMavenPom file: 'pom.xml'
+    //              def nexusrepo = readPom.version.endsWith("SNAPSHOT") ? "maven-snapshots" : "maven-releases"
+    //              nexusArtifactUploader artifacts: 
+    //              [
+    //                  [
+    //                      artifactId: "${readPom.artifactId}",
+    //                      classifier: '', 
+    //                      file: "target/${readPom.artifactId}-${readPom.version}.war", 
+    //                      type: 'war'
+    //                  ]
+    //             ], 
+    //                      credentialsId: 'nexus', 
+    //                      groupId: "${readPom.groupId}", 
+    //                      nexusUrl: '52.91.194.232:8081', 
+    //                      nexusVersion: 'nexus3', 
+    //                      protocol: 'http', 
+    //                      repository: "${nexusrepo}", 
+    //                      version: "${readPom.version}"
 
-            }
-         }
-     }
+    //         }
+    //      }
+    //  }
     
     //  stage('Docker Build and Tag') {
 
