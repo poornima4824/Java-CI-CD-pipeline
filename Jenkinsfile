@@ -76,34 +76,34 @@ pipeline
             }
         }
      
-    //  stage('Nexus Upload')
-    //  {
-    //      steps
-    //      {
-    //         script
-    //         {
-    //              def readPom = readMavenPom file: 'pom.xml'
-    //              def nexusrepo = readPom.version.endsWith("SNAPSHOT") ? "maven-snapshots" : "maven-releases"
-    //              nexusArtifactUploader artifacts: 
-    //              [
-    //                  [
-    //                      artifactId: "${readPom.artifactId}",
-    //                      classifier: '', 
-    //                      file: "target/${readPom.artifactId}-${readPom.version}.war", 
-    //                      type: 'war'
-    //                  ]
-    //             ], 
-    //                      credentialsId: 'Nexus-Cred', 
-    //                      groupId: "${readPom.groupId}", 
-    //                      nexusUrl: '3.110.88.104:8081', 
-    //                      nexusVersion: 'nexus3', 
-    //                      protocol: 'http', 
-    //                      repository: "${nexusrepo}", 
-    //                      version: "${readPom.version}"
+     stage('Nexus Upload')
+     {
+         steps
+         {
+            script
+            {
+                 def readPom = readMavenPom file: 'pom.xml'
+                 def nexusrepo = readPom.version.endsWith("SNAPSHOT") ? "maven-snapshots" : "maven-releases"
+                 nexusArtifactUploader artifacts: 
+                 [
+                     [
+                         artifactId: "${readPom.artifactId}",
+                         classifier: '', 
+                         file: "target/${readPom.artifactId}-${readPom.version}.war", 
+                         type: 'war'
+                     ]
+                ], 
+                         credentialsId: 'Nexus-Cred', 
+                         groupId: "${readPom.groupId}", 
+                         nexusUrl: '52.91.194.232:8081', 
+                         nexusVersion: 'nexus3', 
+                         protocol: 'http', 
+                         repository: "${nexusrepo}", 
+                         version: "${readPom.version}"
 
-    //         }
-    //      }
-    //  }
+            }
+         }
+     }
     
      stage('Docker Build and Tag') {
 
