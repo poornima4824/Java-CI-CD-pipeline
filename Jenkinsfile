@@ -35,7 +35,7 @@ tools {
                     nexusVersion: 'nexus3',
                     protocol: 'http',
                     repository: 'Rollback_mechanism',
-                    version: "${GIT_COMMIT}-${currentDate}"
+                    version: "${GIT_COMMIT}"
                 }
             }
         }
