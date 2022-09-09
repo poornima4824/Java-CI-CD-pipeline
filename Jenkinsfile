@@ -29,7 +29,7 @@ tools {
                             type: 'war'
                         ]
                     ],
-                    credentialsId: 'NEXUS',
+                    credentialsId: 'nexus',
                     groupId: 'build',
                     nexusUrl: 'http://3.23.126.255:8081/',
                     nexusVersion: 'nexus3',
