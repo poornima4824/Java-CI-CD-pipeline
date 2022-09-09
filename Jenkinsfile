@@ -31,7 +31,7 @@ tools {
                     ],
                     credentialsId: 'nexus',
                     groupId: 'build',
-                    nexusUrl: 'http://3.23.126.255:8081/',
+                    nexusUrl: '3.23.126.255:8081',
                     nexusVersion: 'nexus3',
                     protocol: 'http',
                     repository: 'Rollback_mechanism',
