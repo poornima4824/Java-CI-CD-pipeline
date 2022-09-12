@@ -46,9 +46,9 @@ tools {
                     remote.name = 'deploy'
                     remote.host = "3.144.132.81"
                     remote.allowAnyHosts = true
-                    remote.failOnError = withCredentials([usernamePassword(credentialsId: 'remotehost', passwordVariable: 'password', usernameVariable: 'username')]) {
+                    remote.failOnError = withCredentials([usernamePassword(credentialsId: 'remotehost', password: 'Private Key', usernameVariable: 'username')]) {
                         remote.user = username
-                        remote.password = password
+                        remote.password = Private Key
                         //sshCommand remote: remote, command: 'mkdir test'
                         withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
                             sshCommand remote: remote, command: "mkdir rollback && wget --user=$USERNAME --password=$PASSWORD 'http://3.144.132.81:8081/repository/Rollback_mechanism/build/build_artifact/${GIT_COMMIT}/build_artifact-${GIT_COMMIT}.war'"
