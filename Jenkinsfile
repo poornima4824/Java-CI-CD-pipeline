@@ -50,9 +50,9 @@ tools {
                         remote.user = username
                         remote.password = password
                         //sshCommand remote: remote, command: 'mkdir test'
-                       withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-                          sh "mkdir rollback && wget --user=$USERNAME --password=$PASSWORD 'http://3.144.132.81:8081/repository/Rollback_mechanism/build/build_artifact/${GIT_COMMIT}/build_artifact-${GIT_COMMIT}.war'"
-                          sh 'cd rollback && java -jar build_artifact-${GIT_COMMIT}.war'
+                        withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                            sshCommand remote: remote, command: "mkdir rollback && wget --user=$USERNAME --password=$PASSWORD 'http://3.144.132.81:8081/repository/Rollback_mechanism/build/build_artifact/${GIT_COMMIT}/build_artifact-${GIT_COMMIT}.war'"
+                            sshCommand remote: remote, command: 'cd rollback && java -jar build_artifact-${GIT_COMMIT}.war'
                         }
                     }
                }
