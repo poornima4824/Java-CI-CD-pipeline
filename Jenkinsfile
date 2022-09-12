@@ -39,22 +39,21 @@ tools {
                 }
             }
         }
-        stage ('Deploy') {
-            steps {
-                script {
-                    user = "poc"
-                    host = "3.144.132.81"
-                    sshagent(credentials : ['remote']) {
-                        sh "ssh -vvv -o StrictHostKeyChecking=no -T poc@3.144.132.81"
-                        withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-                           sh "mkdir rollback && wget --user=$USERNAME --password=$PASSWORD 'http://3.144.132.81:8081/repository/Rollback_mechanism/build/build_artifact/${GIT_COMMIT}/build_artifact-${GIT_COMMIT}.war'"
-                           sh 'cd rollback && java -jar build_artifact-${GIT_COMMIT}.war'
-                        }
-                    }
-
-                }
-            }
-        }
+       // stage ('Deploy') {
+         //   steps {
+           //     script {
+             //       user = "poc"
+               //     host = "3.144.132.81"
+                 //   sshagent(credentials : ['remote']) {
+                   //     sh "ssh -vvv -o StrictHostKeyChecking=no -T poc@3.144.132.81"
+                     //   withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                       //    sh "mkdir rollback && wget --user=$USERNAME --password=$PASSWORD 'http://3.144.132.81:8081/repository/Rollback_mechanism/build/build_artifact/${GIT_COMMIT}/build_artifact-${GIT_COMMIT}.war'"
+                         //  sh 'cd rollback && java -jar build_artifact-${GIT_COMMIT}.war'
+                        //}
+                    //}
+               // }
+           // }
+       // }
     }
 
 }
